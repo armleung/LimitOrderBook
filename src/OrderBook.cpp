@@ -6,39 +6,24 @@ OrderBook::OrderBook()
 {
 }
 
-void OrderBook::addOrder(Side side, Price price, Quantity quantity)
+void OrderBook::placeOrder(OrderPointer order)
 {
-    if (side == Side::BID) {
-        bids[price] += quantity;
-        std::cout << "Bid: " << quantity << " @ " << price << std::endl;
-    }
-    else {
-        asks[price] += quantity;
-        std::cout << "Ask: " << quantity << " @ " << price << std::endl;
-    }
-    doMatching();
-}
+    auto price = order->getPrice();
+    auto side  = order->getSide(); 
 
-void OrderBook::cancelOrder(Side side, Price price, Quantity quantity)
-{
-    if (side == Side::BID) {
-        auto it = bids.find(price);
-        if (it != bids.end()) {
-            it->second -= quantity;
-            if (it->second == 0) {
-                bids.erase(it);
-            }
-        }
+    ordersMap[order->getId()] = order;
+
+    if (side == Order::Side::BID) {
+        bids.push(price);
+        bidsMap[price].push(order);
+        bidsVolumn[price] += order->getQuantity();
+    } else {
+        asks.push(price);
+        asksMap[price].push(order);
+        asksVolumn[price] += order->getQuantity();
     }
-    else{
-        auto it = asks.find(price);
-        if (it != asks.end()) {
-            it->second -= quantity;
-            if (it->second == 0) {
-                asks.erase(it);
-            }
-        }
-    }
+
+    doMatching();
 }
 
 void OrderBook::doMatching()
@@ -49,26 +34,46 @@ void OrderBook::doMatching()
             break;
         }
 
-        auto& [askPrice, askQuantity] = *asks.begin();
-        auto& [bidPrice, bidQuantity] = *bids.begin();
+        auto& askPrice = asks.top();
+        auto& bidPrice = bids.top();
         
         // No Matching happens if the best bid is less than the best ask
 		if (bidPrice < askPrice){
             break;
         }
 
-        // Matching happens
-        auto tradeQuantity = std::min(askQuantity, bidQuantity);
-        askQuantity -= tradeQuantity;
-        bidQuantity -= tradeQuantity;
-        std::cout << "Trade: " << tradeQuantity << " @ " << askPrice << std::endl;
+        // Matching happens when ask price >= bid price
+        auto& askVolumn = asksVolumn[askPrice];
+        auto& bidVolumn = bidsVolumn[bidPrice];
+        
+        // Trade happen
+        auto tradePrice = std::min(askPrice, bidPrice);
+        auto tradeVolumn = std::min(askVolumn, bidVolumn);
+        std::cout << "Trade happen at price: " << tradePrice << " volumn: " << tradeVolumn << std::endl;
 
-        // Remove the order if the quantity is 0
-        if (askQuantity == 0) {
-            asks.erase(askPrice);
+
+        // Update Volumn Map
+        asksVolumn[askPrice] -= tradeVolumn;
+        bidsVolumn[bidPrice] -= tradeVolumn;
+        
+        // Update Order Queues
+        auto& askOrder = asksMap[askPrice].front();
+        auto& bidOrder = bidsMap[bidPrice].front();
+
+        askOrder->setQuantity(askOrder->getQuantity() - tradeVolumn);
+        bidOrder->setQuantity(bidOrder->getQuantity() - tradeVolumn);
+        
+
+        // Remove the order if the volumn is 0
+        if (askOrder->getQuantity() == 0) {
+            asks.pop();
+            asksMap[askPrice].pop();
+            ordersMap.erase(askOrder->getId());
         }
-        if (bidQuantity == 0) {
-            bids.erase(bidPrice);
+        if (bidOrder->getQuantity() == 0) {
+            bids.pop();
+            bidsMap[bidPrice].pop();
+            ordersMap.erase(bidOrder->getId());
         }
     }
 }

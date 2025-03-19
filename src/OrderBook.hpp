@@ -1,30 +1,37 @@
 #ifndef ORDER_BOOK_HPP
 #define ORDER_BOOK_HPP  
 
-#include <map>
+#include <queue>
+#include <unordered_map>
 
-// Temp typedefs for now
-using Price = int;
-using Quantity = int;
+#include "Order.hpp"
 
-enum class Side {
-    BID,
-    ASK
-};
+using OrderPointer = std::shared_ptr<Order>;
+using OrderPointerQueue = std::queue<OrderPointer>;
 
 class OrderBook {
 public:
     OrderBook();
     ~OrderBook(){}
 
-    // Simple Order book can do Add order / Cancel order
-    void addOrder(Side side, Price price, Quantity quantity);
-    void cancelOrder(Side side, Price price, Quantity quantity);
+    // Simple Order book can do Place order / Cancel order
+    void placeOrder(OrderPointer order);
 
 private:
     void doMatching();
-    std::map<Price, Quantity, std::less<Price>> asks; 
-    std::map<Price, Quantity, std::greater<Price>> bids; 
+
+    std::priority_queue<Price, std::vector<Price>, std::less<Price>>    bids; // Max heap
+    std::priority_queue<Price, std::vector<Price>, std::greater<Price>> asks; // Min heap
+    
+    std::unordered_map<OrderId, OrderPointer> ordersMap;
+    
+    // Order Queues 
+    std::unordered_map<Price, OrderPointerQueue> bidsMap;
+    std::unordered_map<Price, OrderPointerQueue> asksMap;
+
+    // Volumn Maps 
+    std::unordered_map<Price, Volumn> bidsVolumn;
+    std::unordered_map<Price, Volumn> asksVolumn;
 };
 
 #endif // ORDER_BOOK_HPP
