@@ -1,17 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(OrderBookDemo)
+project(OrderBook)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Add the executable
-add_executable(OrderBookDemo
-    src/main.cpp
-    src/OrderBook.cpp
+set(Headers
+    ./src/Order.hpp
+    ./src/OrderBook.hpp
+)
+set(Sources
+    ./src/OrderBook.cpp
 )
 
+# Add the executable
+add_executable(${PROJECT_NAME} ./src/main.cpp ${Sources} ${Headers})
+
+# Define the library target
+add_library(${PROJECT_NAME}_lib STATIC ${Sources} ${Headers})
+
 # Include directories
-target_include_directories(OrderBookDemo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Include directories
+add_subdirectory(tests)
+
+# Enable testing
+enable_testing()
