@@ -16,11 +16,9 @@ void OrderBook::placeOrder(OrderPointer order)
     if (side == Order::Side::BID) {
         bids.push(price);
         bidsMap[price].push(order);
-        bidsVolumn[price] += order->getQuantity();
     } else {
         asks.push(price);
         asksMap[price].push(order);
-        asksVolumn[price] += order->getQuantity();
     }
 
     doMatching();
@@ -43,37 +41,34 @@ void OrderBook::doMatching()
         }
 
         // Matching happens when ask price >= bid price
-        auto& askVolumn = asksVolumn[askPrice];
-        auto& bidVolumn = bidsVolumn[bidPrice];
+
+        // Get the first order in the queue
+        auto& askOrder = asksMap[askPrice].front();
+        auto& bidOrder = bidsMap[bidPrice].front();
+
+        // Get the volumn of the order
+        auto askVolumn = askOrder->getQuantity();
+        auto bidVolumn = bidOrder->getQuantity();
         
         // Trade happen
         auto tradePrice = std::min(askPrice, bidPrice);
         auto tradeVolumn = std::min(askVolumn, bidVolumn);
-        std::cout << "Trade happen at price: " << tradePrice << " volumn: " << tradeVolumn << std::endl;
-
-
-        // Update Volumn Map
-        asksVolumn[askPrice] -= tradeVolumn;
-        bidsVolumn[bidPrice] -= tradeVolumn;
+        std::cout << "Trade happen at price: " << tradePrice  << " volumn: " << tradeVolumn << std::endl;
         
-        // Update Order Queues
-        auto& askOrder = asksMap[askPrice].front();
-        auto& bidOrder = bidsMap[bidPrice].front();
-
+        // Update Order Volumn
         askOrder->setQuantity(askOrder->getQuantity() - tradeVolumn);
         bidOrder->setQuantity(bidOrder->getQuantity() - tradeVolumn);
         
-
         // Remove the order if the volumn is 0
         if (askOrder->getQuantity() == 0) {
-            asks.pop();
             asksMap[askPrice].pop();
             ordersMap.erase(askOrder->getId());
+            asks.pop();
         }
         if (bidOrder->getQuantity() == 0) {
-            bids.pop();
             bidsMap[bidPrice].pop();
             ordersMap.erase(bidOrder->getId());
+            bids.pop();
         }
     }
 }
