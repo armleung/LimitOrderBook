@@ -11,6 +11,7 @@ set(Sources
     OrderBookUnitTest.cpp
     BenchmarkingTest.cpp
     OrderPipeline.cpp
+    GenerateOrders.cpp
 )
 
 add_executable(OrderBookTests ${Sources})

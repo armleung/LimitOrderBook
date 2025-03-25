@@ -20,6 +20,8 @@ public:
 public:
     // Getters
     int getOrdersCount() const { return ordersMap.size(); }
+    Price getLowestSell() const { return asks.top(); }
+    Price getHighestBuy() const { return bids.top(); }
     
 private:
     void doMatching();
