@@ -7,7 +7,7 @@ using OrderId = int;
 
 class Order {
     public:
-        enum class Side { BID, ASK };
+        enum class Side { ASK, BID };
         Order(int id, Side side, double price, int volumn)
             : id(id), side(side), price(price), volumn(volumn) {}
     

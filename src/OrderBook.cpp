@@ -53,7 +53,7 @@ void OrderBook::doMatching()
         // Trade happen
         auto tradePrice = std::min(askPrice, bidPrice);
         auto tradeVolumn = std::min(askVolumn, bidVolumn);
-        std::cout << "Trade happen at price: " << tradePrice  << " volumn: " << tradeVolumn << std::endl;
+        //std::cout << "Trade happen at price: " << tradePrice  << " volumn: " << tradeVolumn << std::endl;
         
         // Update Order Volumn
         askOrder->setQuantity(askOrder->getQuantity() - tradeVolumn);

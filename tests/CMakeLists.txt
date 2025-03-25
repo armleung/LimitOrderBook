@@ -9,6 +9,8 @@ FetchContent_MakeAvailable(googletest)
 
 set(Sources
     OrderBookUnitTest.cpp
+    BenchmarkingTest.cpp
+    OrderPipeline.cpp
 )
 
 add_executable(OrderBookTests ${Sources})
