@@ -28,7 +28,6 @@ void GenerateOrders::addLimit()
             limitPrice = limitPriceDist(gen);
         //} while (limitPrice <= book.getHighestBuy());  
     }
-
     file << "AddLimit " << orderId << " " << buyOrSell << " " << shares << " " << limitPrice << std::endl;
     orderId ++;
 }
@@ -279,7 +278,6 @@ void GenerateOrders::createOrders(int numberOfOrders)
         addLimit();
     }
     file.close();
-    std::cout << "Orders written to Orders.txt successfully!" << std::endl;
 }
 
 // void GenerateOrders::createInitialOrders(int numberOfOrders, int centreOfBook)

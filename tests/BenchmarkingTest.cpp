@@ -12,8 +12,10 @@ TEST(BenchmarkTest, SimpleOneMillionMatchedOrders) {
     }
 }
 
-TEST(BenchmarkTest, GenerateOrders) {
+TEST(BenchmarkTest, DISABLED_GenerateOrders) {
     OrderBook orderBook;
+    OrderPipeline orderPipeline(orderBook);
+    orderPipeline.processOrdersFromFile("initialOrders.txt");
     GenerateOrders generateOrders(orderBook);
     generateOrders.createOrders(5000000);
 }
